@@ -1,0 +1,14 @@
+class MyMath
+{
+  /*
+  Modulus operator function.
+  */
+  function int mod(int dividend, int divisor)
+  {
+    var int quotient;
+
+    let quotient = dividend / divisor;
+
+    return (dividend - (quotient * divisor));
+  }
+}

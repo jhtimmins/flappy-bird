@@ -1,0 +1,147 @@
+class Pipe
+{
+  /*
+  Models an individual Pipe object and creates/updates the pipe image.
+  */
+  field int width;                  // Image full-visibility width.
+  field int width_current;          // Current width (for entering/leaving screen).
+  field int width_increment;        // Amount to shift pipe for each step.
+  field int x_offset;               // Current x-coordinate for pipe image.
+  field int gap_size;               // Distance between top and bottom pieces.
+  field int gap_top;                // Coordinate for bottom of top piece.
+  field int gap_bottom;             // Coordinate for top of bottom piece.
+  field int screen_width;           // Screen width.
+  field int screen_height;          // Screen height.
+
+  /*
+  Construct new Pipe object.
+
+  @param int gap_offset Offset of pipe's gap.
+  */
+  constructor Pipe new(int gap_offset) {
+    let width = 12;
+    let width_increment = 1;
+    let width_current = width_increment;
+    let x_offset = 509;
+    let screen_width = 512;
+    let screen_height = 256;
+    let gap_size = 65;
+    let gap_top = calculateGapTop(gap_offset);
+    let gap_bottom = (gap_top + gap_size);
+
+    return this;
+  }
+
+  /*
+  Calculate coordinate for bottom of top piece.
+  */
+  method int calculateGapTop(int offset)
+  {
+    var int mod;
+    let mod = MyMath.mod(offset, 6);
+
+    return (mod + 1) * 30;
+  }
+
+  /*
+  Shift complete pipe image to the left.
+  */
+  method void shift()
+  {
+    if (x_offset < (screen_width - width )) {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x_offset + width_current - width_increment, 0, x_offset + width_current, gap_top);
+      do Screen.drawRectangle(x_offset + width_current - width_increment, gap_bottom, x_offset + width_current, 255);
+    }
+
+    return;
+  }
+
+  /*
+  Move pipe image to the left. Deleting image entirely if coords no longer
+  on screen.
+  */
+  method void moveLeft()
+  {
+    do shift();
+
+    // Width_current is either growing or shrinking
+    if (width_current < width) {
+      if (x_offset > 0) {
+        let width_current = width_current + width_increment;
+      }
+    }
+
+    if (x_offset > 1) {
+      let x_offset = x_offset - width_increment;
+    } else {
+      let x_offset = 0;
+      let width_current = width_current - width_increment;
+    }
+
+    return;
+  }
+
+  /*
+  Get current width.
+  */
+  method int getWidthCurrent()
+  {
+    return width_current;
+  }
+
+  /*
+  Get width shift increment.
+  */
+  method int getWidthIncrement()
+  {
+    return width_increment;
+  }
+
+  /*
+  Get current x-coordinate.
+  */
+  method int getXOffset()
+  {
+    return x_offset;
+  }
+
+  /*
+  Get y-coordinate of top of gap.
+  */
+  method int getGapTop()
+  {
+    return gap_top;
+  }
+
+  /*
+  Get y-coordinate of bottom of gap.
+  */
+  method int getGapBottom()
+  {
+    return gap_bottom;
+  }
+
+  /*
+  Draw pipe at current x-offset.
+  */
+  method void draw()
+  {
+    if (x_offset - width_increment > 0) {
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x_offset - width_increment, 0, x_offset, gap_top);
+      do Screen.drawRectangle(x_offset - width_increment, gap_bottom, x_offset, 255);
+    }
+
+    return;
+  }
+
+  /*
+  Dispose of pipe object.
+  */
+  method void dispose() {
+     do Memory.deAlloc(this);
+
+     return;
+  }
+}

@@ -1,0 +1,953 @@
+class Scoreboard
+{
+  /*
+  Models the Scoreboard object and creates/displays scoreboard with designated score..
+  */
+  field int score;                      // Final score.
+  field int kerning;                    // Space between characters.
+  field int default_score_offset_x;     // Default x-coord for start of Scoreboard image.
+  field int score_offset_x;             // Current scoreboard draw cursor x-coord.
+  field int score_offset_y;             // Current scoreboard draw cursor y-coord.
+  field int score_pixel_size;           // Abstract pixel size.
+
+  /*
+  Scoreboard constructor.
+  */
+  constructor Scoreboard new()
+  {
+    let kerning = 15;
+    let default_score_offset_x = 50;
+    let score_offset_y = 100;
+    let score_pixel_size = 4;
+
+    return this;
+  }
+
+  /*
+  Draw score.
+  */
+  method void draw(int score)
+  {
+    let score_offset_x = default_score_offset_x;
+    do drawPrefix();
+    do drawScore(score);
+
+    return;
+  }
+
+  /*
+  Draw 'SCORE: ' to prefix actual score value image.
+  */
+  method void drawPrefix()
+  {
+    do blackout();
+    do drawS();
+    do drawC();
+    do drawZero(); // Re-use zero image for letter 'O'.
+    do drawR();
+    do drawE();
+    do drawColon();
+
+    return;
+  }
+
+  /*
+  Draw actual score number.
+  */
+  method void drawScore(int score)
+  {
+    var Array digits;
+    var int digit;
+    var int i;
+
+    let digits = getScoreDigits(score);
+    let i = 1;
+    while (i < (digits[0] + 1)) {
+      let digit = digits[i];
+      if (digit = 0) {
+        do drawZero();
+      }
+      if (digit = 1) {
+        do drawOne();
+      }
+      if (digit = 2) {
+        do drawTwo();
+      }
+      if (digit = 3) {
+        do drawThree();
+      }
+      if (digit = 4) {
+        do drawFour();
+      }
+      if (digit = 5) {
+        do drawFive();
+      }
+      if (digit = 6) {
+        do drawSix();
+      }
+      if (digit = 7) {
+        do drawSeven();
+      }
+      if (digit = 8) {
+        do drawEight();
+      }
+      if (digit = 9) {
+        do drawNine();
+      }
+
+      let i = i + 1;
+    }
+
+    return;
+  }
+
+  /*
+  Get array of specific score digits.
+  */
+  method Array getScoreDigits(int score)
+  {
+    var int remainder;
+    var Array digits;
+    let digits = Array.new(5);
+
+    if (score > 999) {
+      let score = 1000;     // Maximum score.
+      let digits[0] = 4;    // Number of digits to draw.
+      let digits[1] = 1;
+      let digits[2] = 0;
+      let digits[3] = 0;
+      let digits[4] = 0;
+
+      return digits;
+    }
+
+    if (score > 99) {
+      let digits[0] = 3;    // Number of digits to draw.
+      let digits[1] = score/100;  // Calculate hundreds-place digit.
+      let remainder = MyMath.mod(score, 100);
+      let digits[2] = remainder/10; // Calculate tens-place digit.
+      let digits[3] = MyMath.mod(remainder, 10); // Calculate ones-place digit.
+
+      return digits;
+    }
+
+    if (score > 9) {
+      let digits[0] = 2;    // Number of digits to draw.
+      let digits[1] = score/10; // Calculate tens-place digit.
+      let digits[2] = MyMath.mod(score, 10); // Calculate ones-place digit.
+
+      return digits;
+    }
+
+    let digits[0] = 1;    // Number of digits to draw.
+    let digits[1] = score; // Calculate ones-place digit.
+
+    return digits;
+  }
+
+  /*
+  Black out screen.
+  */
+  method void blackout()
+  {
+    do Screen.setColor(true);
+    do Screen.drawRectangle(0, 0, 511, 255);
+
+    return;
+  }
+
+  /*
+  Draw 'S' character.
+  */
+  method void drawS()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 1)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 1),
+    score_offset_y + (score_pixel_size * 3),
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 4),
+    score_offset_x + (score_pixel_size * 5),
+    score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x,
+    score_offset_y + (score_pixel_size * 6),
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw 'C' character.
+  */
+  method void drawC()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 1)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 1),
+    score_offset_y + (score_pixel_size * 6),
+    score_offset_x + (score_pixel_size * 5),
+    score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw 'R' character.
+  */
+  method void drawR()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + score_pixel_size,
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw 'E' character.
+  */
+  method void drawE()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 1)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x,
+    score_offset_y + (score_pixel_size * 3),
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x,
+    score_offset_y + (score_pixel_size * 6),
+    score_offset_x + (score_pixel_size * 5),
+    score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw colon character.
+  */
+  method void drawColon()
+  {
+    var int width;
+    var int height;
+
+    let width = 1 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 0),
+    score_offset_y + (score_pixel_size * 1),
+    score_offset_x + (score_pixel_size * 1),
+    score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 0),
+    score_offset_y + (score_pixel_size * 4),
+    score_offset_x + (score_pixel_size * 1),
+    score_offset_y + (score_pixel_size * 5)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+
+  }
+
+  /*
+  Draw '0' character.
+  */
+  method void drawZero()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(score_offset_x, score_offset_y, score_offset_x + width, score_offset_y + height);
+
+    do Screen.setColor(true);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + score_pixel_size,
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + width - score_pixel_size,
+      score_offset_y,
+      score_offset_x + width,
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + height - score_pixel_size,
+      score_offset_x + score_pixel_size,
+      score_offset_y + height
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + width - score_pixel_size,
+      score_offset_y + height - score_pixel_size,
+      score_offset_x + width,
+      score_offset_y + height
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y + score_pixel_size,
+      score_offset_x + width - score_pixel_size,
+      score_offset_y + height - score_pixel_size
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '1' character.
+  */
+  method void drawOne()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(score_offset_x, score_offset_y, score_offset_x + width, score_offset_y + height);
+
+    do Screen.setColor(true);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.setColor(true);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 2),
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + height - score_pixel_size
+    );
+
+    do Screen.setColor(true);
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 3),
+      score_offset_y,
+      score_offset_x + width,
+      score_offset_y + height - score_pixel_size
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '2' character.
+  */
+  method void drawTwo()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + score_pixel_size,
+      score_offset_x + score_pixel_size,
+      score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 3),
+      score_offset_y + (score_pixel_size * 2),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 3),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + (score_pixel_size * 5)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 5),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 6),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '3' character.
+  */
+  method void drawThree()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + score_pixel_size,
+      score_offset_x + score_pixel_size,
+      score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 0),
+      score_offset_y + (score_pixel_size * 5),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '4' character.
+  */
+  method void drawFour()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 5)
+    );
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 5)
+    );
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 2),
+    score_offset_y + (score_pixel_size * 3),
+    score_offset_x + (score_pixel_size * 3),
+    score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+
+  }
+
+  /*
+  Draw '5' character.
+  */
+  method void drawFive()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 1)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x,
+    score_offset_y + (score_pixel_size * 3),
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 4),
+    score_offset_x + (score_pixel_size * 5),
+    score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+    score_offset_x,
+    score_offset_y + (score_pixel_size * 6),
+    score_offset_x + (score_pixel_size * 4),
+    score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '6' character.
+  */
+  method void drawSix()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + score_pixel_size,
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '7' character.
+  */
+  method void drawSeven()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 2)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 3),
+      score_offset_y + (score_pixel_size * 2),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 2),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 3),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '8' character.
+  */
+  method void drawEight()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + score_pixel_size,
+      score_offset_x + score_pixel_size,
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 0),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Draw '9' character.
+  */
+  method void drawNine()
+  {
+    var int width;
+    var int height;
+
+    let width = 5 * score_pixel_size;
+    let height = 7 * score_pixel_size;
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(
+      score_offset_x + score_pixel_size,
+      score_offset_y,
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + score_pixel_size
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x,
+      score_offset_y + score_pixel_size,
+      score_offset_x + score_pixel_size,
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 1),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 3)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 3),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 4),
+      score_offset_x + (score_pixel_size * 5),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 0),
+      score_offset_y + (score_pixel_size * 5),
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6)
+    );
+
+    do Screen.drawRectangle(
+      score_offset_x + (score_pixel_size * 1),
+      score_offset_y + (score_pixel_size * 6),
+      score_offset_x + (score_pixel_size * 4),
+      score_offset_y + (score_pixel_size * 7)
+    );
+
+    let score_offset_x = score_offset_x + width + kerning;
+
+    return;
+  }
+
+  /*
+  Dispose of Scoreboard object.
+  */
+  method void dispose() {
+     do Memory.deAlloc(this);
+
+     return;
+  }
+}

@@ -1,0 +1,240 @@
+class FlappyBird {
+  /*
+  Models the FlappyBird object and creates/updates the bird image.
+  */
+
+  field int y_offset;           // Y-coordinate on screen
+  field int x_offset;           // X-coordinate on screen
+  field int size_x;             // Width of bird image.
+  field int size_y;             // Height of bird image.
+  field int wing_state;         // Which wing image is currently displayed.
+  field Array up_state;         // Image coords for wing `up` state.
+  field Array mid_state;        // Image coords for wing `middle` state.
+  field Array down_state;       // Image coords for wing `down` state.
+  field Array bird_vector;      // Image coords for current wing state.
+
+  /*
+  FlappyBird object constructor.
+
+  @param int altitude Y coordinate to first show bird image.
+  */
+  constructor FlappyBird new(int altitude) {
+    let y_offset = altitude;
+    let x_offset = 160;
+    let size_x = 16;
+    let size_y = 12;
+
+    let wing_state = 1;
+    do buildUpArray();
+    do buildMidArray();
+    do buildDownArray();
+
+    do draw();
+    return this;
+  }
+
+  /*
+  Move bird image coordinates up.
+  */
+  method void moveUp()
+  {
+    do erase();
+    if (y_offset > 30) {
+      let y_offset = y_offset - 30;
+    } else {
+      let y_offset = 0;
+    }
+
+    return;
+  }
+
+  /*
+  Move bird image coordinates down.
+  */
+  method void moveDown()
+  {
+    do erase();
+    if (y_offset < (255 - size_y - 5)) {
+      let y_offset = y_offset + 5;
+    } else {
+      let y_offset = 255 - size_y;
+    }
+
+    return;
+  }
+
+  /*
+  Erase bird image.
+  */
+  method void erase()
+  {
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x_offset, y_offset, x_offset + size_x, y_offset + size_y);
+
+    return;
+  }
+
+  /*
+  Build Array of wing 'up' state image coordinates.
+  */
+  method void buildUpArray() {
+
+    let up_state = Array.new(12);
+
+    let up_state[0] = 4032;
+    let up_state[1] = 4656;
+    let up_state[2] = 8456;
+    let up_state[3] = 20766;
+    let up_state[4] = 20769;
+    let up_state[5] = 16961;
+    let up_state[6] = -959;
+    let up_state[7] = -32222;
+    let up_state[8] = -740;
+    let up_state[9] = -32252;
+    let up_state[10] = 31768;
+    let up_state[11] = 992;
+
+    return;
+  }
+
+  /*
+  Build Array of wing 'middle' state image coordinates.
+  */
+  method void buildMidArray() {
+
+    let mid_state = Array.new(12);
+
+    let mid_state[0] = 4032;
+    let mid_state[1] = 4656;
+    let mid_state[2] = 8456;
+    let mid_state[3] = 20740;
+    let mid_state[4] = 20740;
+    let mid_state[5] = 16958;
+    let mid_state[6] = -959;
+    let mid_state[7] = -32191;
+    let mid_state[8] = -706;
+    let mid_state[9] = -32252;
+    let mid_state[10] = 31768;
+    let mid_state[11] = 992;
+
+    return;
+  }
+
+  /*
+  Build Array of wing 'down' state image coordinates.
+  */
+  method void buildDownArray() {
+
+    let down_state = Array.new(12);
+
+    let down_state[0] = 4032;
+    let down_state[1] = 4656;
+    let down_state[2] = 8456;
+    let down_state[3] = 20740;
+    let down_state[4] = 20740;
+    let down_state[5] = 16898;
+    let down_state[6] = -962;
+    let down_state[7] = -32191;
+    let down_state[8] = -735;
+    let down_state[9] = -32239;
+    let down_state[10] = 31774;
+    let down_state[11] = 992;
+
+    return;
+  }
+
+  /*
+  Cycle bird wing state to next in loop.
+  */
+  method void cycleWingState()
+  {
+    if (wing_state = 3) {
+      let wing_state = 1;
+    } else {
+      let wing_state = wing_state + 1;
+    }
+
+    return;
+  }
+
+  /*
+  Return image coordinates for current wing state.
+  */
+  method Array getBirdVector()
+  {
+    if (wing_state = 1) {
+      return up_state;
+    }
+
+    if (wing_state = 2) {
+      return mid_state;
+    }
+
+    return down_state;
+  }
+
+  /*
+  Draw bird.
+  */
+  method void draw() {
+    var int memAddress;
+    let memAddress = (16384 + (y_offset * 32) + (x_offset/16));
+
+    let bird_vector = getBirdVector();
+
+    do Memory.poke(memAddress+0, bird_vector[0]);
+    do Memory.poke(memAddress+32, bird_vector[1]);
+    do Memory.poke(memAddress+64, bird_vector[2]);
+    do Memory.poke(memAddress+96, bird_vector[3]);
+    do Memory.poke(memAddress+128, bird_vector[4]);
+    do Memory.poke(memAddress+160, bird_vector[5]);
+    do Memory.poke(memAddress+192, bird_vector[6]);
+    do Memory.poke(memAddress+224, bird_vector[7]);
+    do Memory.poke(memAddress+256, bird_vector[8]);
+    do Memory.poke(memAddress+288, bird_vector[9]);
+    do Memory.poke(memAddress+320, bird_vector[10]);
+    do Memory.poke(memAddress+352, bird_vector[11]);
+
+    return;
+  }
+
+  /*
+  Get image X-coordinate.
+  */
+  method int getXOffset()
+  {
+    return x_offset;
+  }
+
+  /*
+  Get image Y-coordinate.
+  */
+  method int getYOffset()
+  {
+    return y_offset;
+  }
+
+  /*
+  Get image width.
+  */
+  method int getSizeX()
+  {
+    return size_x;
+  }
+
+  /*
+  Get image height.
+  */
+  method int getSizeY()
+  {
+    return size_y;
+  }
+
+  /*
+  Dispose of Bird object.
+  */
+  method void dispose() {
+     do Memory.deAlloc(this);
+     return;
+  }
+}
